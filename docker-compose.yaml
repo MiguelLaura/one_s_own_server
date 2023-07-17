@@ -1,0 +1,162 @@
+version: '3'
+services:
+  proxy:
+    image: nginx:latest
+    container_name: proxy
+    depends_on:
+      - web
+      - web1
+      - web2
+      - web3
+    restart: always
+    ports:
+        - "80:80"
+    volumes:
+        - ./nginx/proxy.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - front
+
+  web:
+    image: nginx:latest
+    container_name: web
+    depends_on:
+      - php
+    restart: always
+    volumes:
+        - ./monsite:/usr/share/nginx/html
+        - ./nginx/monsite.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - front
+      - backend
+
+  php:
+    image: pichouk/php
+    container_name: php
+    restart: always
+    volumes:
+        - ./monsite:/usr/share/nginx/html
+    networks:
+      - backend
+
+  web1:
+    image: nginx:latest
+    container_name: web1
+    depends_on:
+      - php1
+    restart: always
+    volumes:
+        - ./monsite1:/usr/share/nginx/html
+        - ./nginx/monsite1.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - front
+      - backend1
+
+  php1:
+    image: pichouk/php
+    container_name: php1
+    depends_on:
+      - postgresql1
+    restart: always
+    volumes:
+        - ./monsite1:/usr/share/nginx/html
+    networks:
+      - backend1
+
+  postgresql1:
+    image: postgres:10
+    container_name: postgresql1
+    environment:
+      POSTGRES_DB: apirun
+      POSTGRES_USER: laura
+      POSTGRES_PASSWORD: 11/07/202311:39
+    volumes:
+      - ./bdd/data1:/var/lib/postgresql/data
+      - ./sql/backup.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend1
+
+  web2:
+    image: nginx:latest
+    container_name: web2
+    depends_on:
+      - php2
+    restart: always
+    volumes:
+        - ./monsite2:/usr/share/nginx/html
+        - ./nginx/monsite2.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - front
+      - backend2
+
+  php2:
+    image: pichouk/php
+    container_name: php2
+    depends_on:
+      - postgresql2
+    restart: always
+    volumes:
+        - ./monsite2:/usr/share/nginx/html
+    networks:
+      - backend2
+
+  postgresql2:
+    image: postgres:10
+    container_name: postgresql2
+    environment:
+      POSTGRES_DB: apirun
+      POSTGRES_USER: laura
+      POSTGRES_PASSWORD: 11/07/202311:39
+    volumes:
+      - ./bdd/data2:/var/lib/postgresql/data
+      - ./sql/backup.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend2
+
+  web3:
+    image: nginx:latest
+    container_name: web3
+    depends_on:
+      - php3
+    restart: always
+    volumes:
+        - ./monsite3:/usr/share/nginx/html
+        - ./nginx/monsite3.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - front
+      - backend3
+
+  php3:
+    image: pichouk/php
+    container_name: php3
+    depends_on:
+      - postgresql3
+    restart: always
+    volumes:
+        - ./monsite3:/usr/share/nginx/html
+    networks:
+      - backend3
+
+  postgresql3:
+    image: postgres:10
+    container_name: postgresql3
+    environment:
+      POSTGRES_DB: apirun
+      POSTGRES_USER: laura
+      POSTGRES_PASSWORD: 11/07/202311:39
+    volumes:
+      - ./bdd/data3:/var/lib/postgresql/data
+      - ./sql/backup.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend3
+
+networks:
+  front:
+    external: true
+  backend:
+    external: true
+  backend1:
+    external: true
+  backend2:
+    external: true
+  backend3:
+    external: true
